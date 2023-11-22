@@ -8,8 +8,6 @@ import { useRouter } from 'vue-router';
 const unites = ref([]);
 const lines = ref([]);
 const items = ref([]);
-const smv = ref([]);
-
 
 export default {
     setup() {
@@ -50,19 +48,19 @@ export default {
                 Today_Target: '',
                 Today_Output: '',
                 remarks: '',
-
-
             });
         }
+
         const getLine = () => {
-            axios.get('/api/lines')
+            const uniteId = form[0].unite_id;
+            axios.get(`/api/lines/${uniteId}`)
                 .then(response => {
                     lines.value = response.data;
                 })
                 .catch(error => {
-                    console.error(error);
                 });
-        }
+        };
+
         const getItem = () => {
             axios.get('/api/smv_libraries')
                 .then(response => {
@@ -89,7 +87,7 @@ export default {
                 });
         }
         const submit = () => {
-            if (form.length - 1) {
+            if (form.length > 0) {
                 axios.post('/api/efficiencies', form)
                     .then(res => {
                         toastr.success('Data Inserted Successfully');
@@ -102,6 +100,7 @@ export default {
             }
 
         }
+
         const efficiency_report = (event) => {
             const selectedValue = event.target.value;
             switch (selectedValue) {
@@ -146,13 +145,12 @@ export default {
 }
 </script>
 
-
 <template>
     <div class="main-wrapper">
         <div class="page-wrapper">
             <div class="content">
                 <div class="page-header">
-                    <router-link to="/admin/smv_library" class="btn btn-primary btn-sm mb-2">SMV Library</router-link>
+                    <router-link to="/admin/smv_library" class="e_btn btn-primary btn-sm mb-2">SMV Library</router-link>
                     <div class="e-page-title">
                         <h4> Efficiency Report Entry Form</h4>
                         <h5>Create Efficiency Report</h5>
@@ -163,11 +161,11 @@ export default {
                             <select class="form-select form-select-sm " aria-label="Small select example"
                                 @change="efficiency_report">
                                 <option selected>Select Report</option>
-                                <option value="1"><router-link to="/admin/single_unite">Single
-                                        Unite</router-link></option>
-                                <option value="1">All Unite</option>
-                                <option value="2">Monthly</option>
-                                <option value="3">Yearly</option>
+                                <option value="1">Single
+                                    Unite</option>
+                                <option value="2">All Unite</option>
+                                <option value="3">Monthly</option>
+                                <option value="4">Yearly</option>
                             </select>
                         </div>
                     </div>
@@ -183,7 +181,7 @@ export default {
                         <div class="input-group input-group-sm mb-1">
                             <span class="input-group-text" id="inputGroup-sizing-sm">Select Unite</span>
                             <select class="form-select form-select-sm" aria-label="Select Unite" v-model="form[0].unite_id"
-                                @change="getLine">
+                                @change="getLine(form[0].unite_id)">
                                 <option disabled value="">Select Unite</option>
                                 <option v-for="unite in unites" :key="unite.id" :value="unite.id">{{ unite.uniteName }}
                                 </option>
@@ -255,9 +253,10 @@ export default {
                                                                     aria-label=".form-select-sm example"
                                                                     v-model="efficiency_report.Line_No" @change="addRow">
                                                                     <option v-for="line in lines" :key="line.id"
-                                                                        :value="line.id">{{
+                                                                        :value="line.Line">{{
                                                                             line.Line }}
                                                                     </option>
+
                                                                 </select>
                                                             </td>
                                                             <td>
@@ -333,7 +332,8 @@ export default {
                                         </div>
                                     </div>
                                     <div class="col-sm-12">
-                                        <button class="btn btn-primary btn-sm float-end m-1" @click="submit">Submit</button>
+                                        <button class="be_btn btn-primary btn-sm mb-2 float-end m-1"
+                                            @click="submit">Submit</button>
                                     </div>
                                 </div>
                             </div>

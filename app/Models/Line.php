@@ -9,6 +9,7 @@ class Line extends Model
 {
     use HasFactory;
     protected $guarded =[];
+
     public function Unite()
     {
      return $this->belongsTo(Unite::class);

@@ -104,3 +104,10 @@ tbody {
     border: 1px solid #e8ebed;
     border-radius: 6px;
 }
+
+.e_btn {
+    border: 1px solid #6a727a;
+    padding: 4px 4px;
+    border-radius: 4px;
+    cursor: pointer;
+}

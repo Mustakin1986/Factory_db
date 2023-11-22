@@ -33,13 +33,16 @@ export default {
         };
 
         const submit = () => {
-            axios.post('/api/lines', form)
-                .then(res => {
-                    toastr.success('Line Created Successfully');
-                })
-                .catch((error) => {
-                    toastr.error('An error occurred while creating the Line');
-                });
+            if (form.length - 1) {
+                axios.post('/api/lines', form)
+                    .then(res => {
+                        toastr.success('Line Created Successfully');
+                    })
+                    .catch((error) => {
+                        toastr.error('An error occurred while creating the Line');
+                    });
+            }
+
         };
 
         const getUnites = () => {
@@ -104,7 +107,8 @@ export default {
                                             </td>
 
                                             <td> <input class=" form-control form-control-sm" type="text"
-                                                    aria-label=".form-control-sm example" v-model="row.Line"></td>
+                                                    aria-label=".form-control-sm example" v-model="row.Line"
+                                                    @click="addRow"></td>
                                             <td><input class="form-control form-control-sm" type="text"
                                                     aria-label=".form-control-sm example" v-model="row.remarks">
                                             </td>
@@ -116,7 +120,6 @@ export default {
                                 </table>
                             </div>
                             <div class="col-mb-12 m-3">
-                                <button class="btn btn-primary btn-sm" @click="addRow">Add Row</button>
                                 <button class="btn btn-primary btn-sm float-end" @click="submit">Submit</button>
                             </div>
                         </div>
