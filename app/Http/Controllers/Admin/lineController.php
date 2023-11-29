@@ -20,8 +20,8 @@ class lineController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function getLine($id) {
-            $line = Line::where('unite_id', $id)->get();
+    public function getLine($unite_id) {
+            $line = Line::where('unite_id', $unite_id)->get();
             return response()->json($line);
     }
     public function create()

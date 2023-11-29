@@ -17,6 +17,11 @@ class SmvController extends Controller
         return $smv;
     }
 
+    public function getItem($style_no){
+        $item = SmvLibrary::where('style_no', $style_no)->get();
+            return response()->json($item);
+    }
+
     /**
      * Show the form for creating a new resource.
      */

@@ -8,6 +8,7 @@ import { useRouter } from 'vue-router';
 const unites = ref([]);
 const lines = ref([]);
 const items = ref([]);
+const smv = ref([]);
 
 export default {
     setup() {
@@ -35,6 +36,9 @@ export default {
 
         const addRow = () => {
             const newUniteId = form.length > 0 ? form[0].unite_id : '';
+            const smvValue = smv.value.length > 0 ? smv.value[0].smv : '';
+
+            // Add a new row directly
             form.push({
                 unite_id: newUniteId,
                 Line_No: '',
@@ -44,12 +48,13 @@ export default {
                 style_no: '',
                 Po_No: '',
                 Item: '',
-                smv: '',
+                smv: smvValue,
                 Today_Target: '',
                 Today_Output: '',
                 remarks: '',
             });
         }
+
 
         const getLine = () => {
             const uniteId = form[0].unite_id;
@@ -61,8 +66,28 @@ export default {
                 });
         };
 
-        const getItem = () => {
+        const get_smv = () => {
             axios.get('/api/smv_libraries')
+                .then(response => {
+                    smv.value = response.data;
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+
+        const get_item = () => {
+            const style_no = form[0].style_no;
+            axios.get(`/api/smv_libraries/${style_no}`)
+                .then(response => {
+                    items.value = response.data;
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+        const getItem = () => {
+            axios.get(`/api/smv_libraries`)
                 .then(response => {
                     items.value = response.data;
                 })
@@ -93,7 +118,6 @@ export default {
                         toastr.success('Data Inserted Successfully');
                     })
                     .catch((error) => {
-                        // Handle the error, for example, by displaying an error toastr message.
                         toastr.error('An error occurred while creating the Data Inserted');
                     })
 
@@ -125,7 +149,9 @@ export default {
         onMounted(() => {
             getUnites();
             getLine();
-            getItem();
+            get_smv();
+            get_item();
+            getItem()
         });
 
         return {
@@ -137,9 +163,12 @@ export default {
             lines,
             getLine,
             getUnites,
-            getItem,
             items,
-            efficiency_report
+            efficiency_report,
+            smv,
+            get_item,
+            getItem
+
         }
     }
 }
@@ -170,35 +199,6 @@ export default {
                         </div>
                     </div>
 
-                </div>
-                <div class="col-mb-12 e-header">
-                    <div class="col-mb-3 date_unite">
-                        <div class="input-group input-group-sm mb-1">
-                            <span class="input-group-text" id="inputGroup-sizing-sm">Report Date</span>
-                            <input type="date" class="form-control" aria-label="Sizing example input"
-                                aria-describedby="inputGroup-sizing-sm">
-                        </div>
-                        <div class="input-group input-group-sm mb-1">
-                            <span class="input-group-text" id="inputGroup-sizing-sm">Select Unite</span>
-                            <select class="form-select form-select-sm" aria-label="Select Unite" v-model="form[0].unite_id"
-                                @change="getLine(form[0].unite_id)">
-                                <option disabled value="">Select Unite</option>
-                                <option v-for="unite in unites" :key="unite.id" :value="unite.id">{{ unite.uniteName }}
-                                </option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-mb-3 observer">
-                        <div class="input-group input-group-sm mb-1">
-                            <span class=" input-group-text" id="inputGroup-sizing-sm">Observer Name</span>
-                            <select class="form-select form-select-sm " aria-label="Small select example">
-                                <option selected>Select Observer</option>
-                                <option value="1">One</option>
-                                <option value="2">Two</option>
-                                <option value="3">Three</option>
-                            </select>
-                        </div>
-                    </div>
                 </div>
                 <div class=" card">
                     <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -274,10 +274,12 @@ export default {
                                                                     aria-label=".form-control-sm example"
                                                                     v-model="efficiency_report.Working_Hrs">
                                                             </td>
+
                                                             <td style="width:8%;">
                                                                 <select class="form-select form-select-sm"
                                                                     aria-label=".form-select-sm example"
-                                                                    v-model="efficiency_report.style_no">
+                                                                    v-model="efficiency_report.style_no"
+                                                                    @change="get_item(form[0].Item)">
                                                                     <option v-for="item in items" :key="item.id"
                                                                         :value="item.style_no">{{
                                                                             item.style_no }}</option>

@@ -31,9 +31,10 @@ Route::get('/', function () {
 // });
 
 //Smv Library
+Route::get('/api/smv_libraries/{style_no}', [SmvController::class, 'getItem']);
 Route::resource('/api/smv_libraries',SmvController::class);
 //line
-Route::get('/api/lines/{id}', [LineController::class, 'getLine']);
+Route::get('/api/lines/{unite_id}', [LineController::class, 'getLine']);
 Route::resource('/api/lines',lineController::class);
 
 //Unite

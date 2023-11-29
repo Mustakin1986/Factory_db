@@ -10,8 +10,12 @@ const percentage = ref(0);
 const ref_efficiency = ref(0);
 const smv_ref = ref(0);
 const smv = ref(0);
+const produce_mint = ref(0);
+const attendance_mint = ref(0);
+let Today_Target, workingHours;
 
-const getCategory = () => {
+
+const get_single_unite_report = () => {
     axios.get('/api/efficiencies')
         .then((response) => {
             efficiencies.value = response.data;
@@ -58,6 +62,33 @@ const get_smv = () => {
             });
     }
 }
+const target_produce_mint = () => {
+    if (efficiencies.value.length > 0) {
+        Today_Target = efficiencies.value[0].Today_Target;
+        smv = efficiencies.value[0].smv;
+        produce_mint.value = Today_Target * smv;
+    }
+    return {
+        target_produce_mint,
+        produce_mint,
+        Today_Target,
+        smv,
+    };
+};
+const target_attendance_mint = () => {
+    if (efficiencies.value.length > 0) {
+        OP = efficiencies.value[0].Ttl_OP;
+        HP = efficiencies.value[0].Ttl_HP;
+        workingHours = efficiencies.value[0].Working_Hrs;
+        attendance_mint.value = (OP + HP) * workingHours;
+    }
+    return {
+        target_attendance_mint,
+        OP,
+        HP,
+        workingHours,
+    };
+};
 
 const HP_Percentage = () => {
     if (efficiencies.value.length > 0) {
@@ -74,11 +105,13 @@ const HP_Percentage = () => {
 }
 
 onMounted(() => {
-    getCategory();
+    get_single_unite_report();
     get_efficiency_ref();
     HP_Percentage();
     get_smv_ref();
     get_smv();
+    target_produce_mint();
+    target_attendance_mint();
 });
 </script>
 
@@ -227,17 +260,26 @@ onMounted(() => {
                                     <td>{{ row.Today_Target }}</td>
                                     <td>{{ row.Today_Output }}</td>
                                     <td>{{ parseFloat((row.Today_Output / row.Today_Target) * 100).toFixed(2) }}%</td>
-                                    <td>{{ }}</td>
-                                    <td>{{ }}</td>
-
+                                    <td>{{ row.smv }}</td>
+                                    <td>
+                                        {{ ((row.Ttl_OP + row.Ttl_HP) * row.Working_Hrs) !== 0 ?
+                                            parseFloat(((row.Today_Target * row.smv) / (((row.Ttl_OP + row.Ttl_HP) *
+                                                row.Working_Hrs) * 60) * 100).toFixed(2)) + '%' : 'N/A' }}
+                                    </td>
+                                    <td>
+                                        {{ ((row.Ttl_OP + row.Ttl_HP) * row.Working_Hrs) !== 0 ?
+                                            parseFloat(((row.Today_Output * row.smv) / (((row.Ttl_OP + row.Ttl_HP) *
+                                                row.Working_Hrs) * 60) * 100).toFixed(2)) + '%' : 'N/A' }}
+                                    </td>
                                     <td>
                                         <a class="me-3" href="editpurchase.html">
                                             <img src="assets/img/icons/edit.svg" alt="img">
                                         </a>
 
-                                        <button type="button" @click="deleteCategory(category.id)" class="me-3 confirm-text"
-                                            style="border: none; background-color: none;"><i
-                                                class="fa fa-trash text-danger"></i></button>
+                                        <button type="button" @click="deleteCategory(row.id)" class="me-3 confirm-text"
+                                            style="border: none; background-color: none;">
+                                            <i class="fa fa-trash text-danger"></i>
+                                        </button>
                                     </td>
                                 </tr>
                             </tbody>
